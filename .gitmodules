@@ -4,3 +4,6 @@
 [submodule "src/thirdparties/so-vits-svc"]
 	path = src/thirdparties/so-vits-svc
 	url = https://github.com/svc-develop-team/so-vits-svc.git
+[submodule "src/thirdparties/so-vits-svc-fork"]
+	path = src/thirdparties/so-vits-svc-fork
+	url = https://github.com/voicepaw/so-vits-svc-fork.git
