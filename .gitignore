@@ -71,7 +71,7 @@ src/vocalinferencegui/resources/files/output
 src/vocalinferencegui/resources/files/sources.json
 src/vocalinferencegui/resources/files/keys
 src/vocalinferencegui/backend/test
-src/environment.json
+src/vocalinferencegui/backend/environment.json
 .DS_Store
 *.th
 *.pth
