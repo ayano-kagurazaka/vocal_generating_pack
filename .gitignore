@@ -168,6 +168,7 @@ files/output
 files/sources.json
 files/keys
 src/test
+src/environment.json
 .DS_Store
 *.th
 *.pth

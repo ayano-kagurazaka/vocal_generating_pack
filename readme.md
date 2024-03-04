@@ -15,20 +15,18 @@ AMD显卡用户请遗憾离场, 目前不支持AMD显卡
 
 ## demo
 
-在配置好环境以后使用Jupyter notebook运行[src/demo.ipynb](src/demo.ipynb)即可, 目前里面包含了一个简单的inference流程和6首demo歌曲
+在配置好环境以后使用Jupyter notebook运行[src/demo.ipynb](src/demo.ipynb)即可, 目前里面包含了一个简单的inference流程和demo歌曲
 
 ## roadmap
 - [ ] 文字转语音并输出
-- [ ] 集成模型训练
+- [ ] 模型训练
 - [ ] 分离单个音频中不同人的声音
-- [ ] Qt GUI
-- [ ] WebUI
+- [ ] Beeware UI
 - [ ] CLI
 - [ ] Jupyter Notebook
   - [x] Inference
   - [ ] Training
 - [ ] 资源管理器
-  - [ ] 模型管理器
   - [x] 模型管理器
   - [ ] 数据集管理器
 - [ ] 插件系统
@@ -43,7 +41,6 @@ AMD显卡用户请遗憾离场, 目前不支持AMD显卡
 - [pyannote-audio(MIT)](https://github.com/pyannote/pyannote-audio)
 - [空庭雨(已获得原作者授权)](https://music.163.com/song?id=2006730110)
 - [星空逃避行](https://tandess.itch.io/escape-demo)
-- [蝶と薔薇の罪と罰](https://www.tandess.com/en/music/free-material/material.html)
 - [DAI☆TAN センセーション](https://www.tandess.com/en/music/free-material/material.html)
 - [永遠と唄](https://www.tandess.com/en/music/free-material/material.html)
 - [ディザイア](https://www.tandess.com/en/music/free-material/material.html)

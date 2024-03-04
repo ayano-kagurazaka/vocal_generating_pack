@@ -5,19 +5,19 @@ import os
 import librosa
 import soundfile
 from Crypto.Cipher import AES
-from thirdparties.demucs import separate
+from demucs import separate
 from torch.cuda import is_available
-from pydub import AudioSegment
 from tqdm import tqdm
+from pathlib import Path
+import json
 
-
-from thirdparties.so_vits_svc_fork.inference.main import infer
 from classes import DemucsGenerateParam
-from environment import *
-from thirdparties.slicer import Slicer
-from thirdparties.so_vits_svc_fork.preprocessing.preprocess_flist_config import preprocess_config
+from environment import output_path, config, so_vits_dataset_path
+from so_vits_svc_fork.inference.main import infer
+from so_vits_svc_fork.preprocessing.preprocess_flist_config import preprocess_config
 from pyannote.audio import Pipeline
 from df.enhance import enhance, init_df, load_audio, save_audio
+from Slicer import Slicer
 
 def convert_ncm(file_path:Path, output_path:Path) -> Path:
     """
@@ -164,7 +164,9 @@ def separate_vocal(
             cmd = "ffmpeg -v quiet -threads " + str(os.cpu_count() // 2) + " -i " + str(Path(os.path.join(output_path, "vocals.mp3")).resolve()) + " " + str(Path(os.path.join(output_path, "vocals." + extension.strip("."))).resolve())
         os.system(cmd)
         print("done")
-    return {"vocal": Path(os.path.join(output_path, "vocals." + extension.strip("."))), "instrumental": Path(os.path.join(output_path, "no_vocals." + extension.strip(".")))}
+    output_vocal = Path(output_path).joinpath("hdemucs_mmi").joinpath(track_path.stem).joinpath("vocals." + extension.strip("."))
+    output_no_vocal = Path(output_path).joinpath("hdemucs_mmi").joinpath(track_path.stem).joinpath("no_vocals." + extension.strip("."))
+    return {"vocal": output_vocal, "instrumental": output_no_vocal}
 
 
 def separate_vocal_parameterized(param: DemucsGenerateParam) -> dict[str, Path]:
@@ -227,7 +229,7 @@ def apply_so_vits(input_vocal: Path,
     chunk_seconds = clamp(chunk_seconds, 0., 3.)
     max_chunk_seconds = clamp(max_chunk_seconds, 0., 240.)
     cluster_infer_ratio = clamp(cluster_infer_ratio, 0., 1.)
-
+    print("model path: ", model_path)
     f0_method = f0_method if f0_method in ["crepe", "crepe-tiny", "parselmouth", "dio", "harvest"] else "dio"
     if not input_vocal.exists():
         raise FileNotFoundError(f"File {input_vocal} not found")
@@ -242,7 +244,7 @@ def apply_so_vits(input_vocal: Path,
         raise ValueError(f"Speaker {speaker} not found in config {config_file_path}")
 
     output_file = output_path / Path(f"voice_generated_with_{speaker}.wav").name
-    path_out = infer(
+    infer(
         input_path=input_vocal,
         output_path=output_file,
         model_path=model_path,
@@ -259,6 +261,7 @@ def apply_so_vits(input_vocal: Path,
         cluster_infer_ratio=cluster_infer_ratio,
         absolute_thresh=absolute_tresh
     )
+    path_out = output_path / Path(f"voice_generated_with_{speaker}.wav").name
     return path_out
 
 
@@ -280,11 +283,12 @@ def fuse_vocal_and_instrumental(
     if not instrumental_path.exists():
         raise FileNotFoundError(f"File {instrumental_path} not found")
     output_path.mkdir(parents=True, exist_ok=True)
-    vocal = AudioSegment.from_file(vocal_path)
-    instrumental = AudioSegment.from_file(instrumental_path)
-    out = vocal.overlay(instrumental)
-    out.export(output_path / Path(vocal_path.stem + f"_counterfeited_from_{speaker}." + extension.strip(".")).name, format=extension)
-    while not Path(output_path / Path(vocal_path.stem + f"_counterfeited_from_{speaker}." + extension.strip(".")).name).exists():
+    
+    vocal, sr_vocal = librosa.load(str(vocal_path.resolve()), sr=44100)
+    instrumental, sr_instrumental = librosa.load(str(instrumental_path.resolve()), sr=44100)
+    audio = instrumental + vocal
+    soundfile.write(output_path / Path(vocal_path.stem + f"_counterfeited_from_{speaker}." + extension.strip(".")).name, audio, sr_instrumental, format=extension.strip("."))
+    if not Path(output_path / Path(vocal_path.stem + f"_counterfeited_from_{speaker}." + extension.strip(".")).name).exists():
         print(output_path / Path(vocal_path.stem + f"_counterfeited_from_{speaker}." + extension.strip(".")).name)
     print("done")
     return output_path / Path(vocal_path.stem + f"_counterfeited_from_{speaker}." + extension.strip(".")).name
@@ -309,9 +313,9 @@ def resample(input_path: Path, output_path: Path, sample_rate: int=44100):
     if not input_path.exists():
         raise FileNotFoundError(f"File {input_path} not found")
     output_path.mkdir(parents=True, exist_ok=True)
-    audio = AudioSegment.from_file(input_path)
-    audio = audio.set_frame_rate(sample_rate)
-    audio.export(output_path.joinpath(f"{input_path.stem}_resampled_{sample_rate}{input_path.suffix}").resolve(), format=input_path.suffix.strip("."))
+    audio, sr = librosa.load(input_path)
+    librosa.resample(audio, sr, sample_rate)
+    soundfile.write(output_path.joinpath(f"{input_path.stem}_resampled_{sample_rate}{input_path.suffix}").resolve(), audio, sample_rate, format='wav')
     return output_path.joinpath(f"{input_path.stem}_resampled_{sample_rate}{input_path.suffix}").resolve()
 
 
@@ -446,12 +450,4 @@ def generate_config(
     preprocess_config(sliced_path, train_data_path, val_data_path, test_data_path, config_file_path, config_name)
 
     return {"train": train_data_path, "val": val_data_path, "test": test_data_path, "config": config_file_path}
-
-
-audio_from_video = extract_video_audio(Path("./test/2023-06-14_19-06-15.mp4"), Path("./test/extracted/"))
-resampled = resample(audio_from_video, Path("./test/resampled/"), 44100)
-denoised = denoise(resampled, Path("./test/denoised/"))
-separated = separate_vocal(denoised, Path("./test/separated/"))
-extracted = extract_speaker(separated["vocal"], Path("./test/extracted/"), max_speaker=2, min_speaker=2)
-print(extracted)
 

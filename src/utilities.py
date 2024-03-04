@@ -15,7 +15,6 @@ import re
 import requests
 import huggingface_hub
 from typing import Any
-import yaml
 
 
 def cow_transfer_metadata(link: str) -> dict:
@@ -99,7 +98,6 @@ def get_cow_transfer_file(name, value, download_path, engine, type, auth:dict={}
 	download_path.joinpath(name).mkdir(parents=True, exist_ok=True)
 	archive_supported = ("gz", "gzip", "zip", "tar", "rar", "7z")
 	meta = cow_transfer_metadata(value["link"])
-	ans = {}
 	if meta["code"] != 200:
 		print(f"cannot fetch metadata of {name}, skipping")
 		return {}

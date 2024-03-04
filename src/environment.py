@@ -92,7 +92,7 @@ def update_keys():
 			if k.read().strip("\n").strip(" ") != "":
 				config["keys"][i.stem] = k.read().strip("\n")
 			else:
-				print(f"config file {i} is empty")
+				print(f"key file {i} is empty")
 
 
 update_keys()
