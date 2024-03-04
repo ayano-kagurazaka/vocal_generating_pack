@@ -1,7 +1,6 @@
 import tqdm
-from environment import demucs_model_path, so_vits_model_path, config
+from environment import demucs_model_path, so_vits_model_path, config, sources
 from utilities import update_download_path, get_cow_transfer_file, get_hugging_face_file
-from environment import sources
 from classes import AttributeDict
 from pathlib import Path
 import requests
@@ -28,7 +27,6 @@ def get_data_from_source(engine_name: str, file_type: str, file_name: str, updat
 				download_result.update(get_so_vits_model(model_name=file_name, link=i, download_path=so_vits_model_path, update_cache=update_cache, auth=model_download_data_dict["auth"]))
 		case _:
 			print(f"engine {engine_name} not supported, skipping")
-
 	return download_result
 
 
@@ -47,9 +45,8 @@ def get_demucs_model(model_name:str, link:str, download_path:Path, update_cache:
 	get demucs demo_assets from config.json
 	"""
 	download_path.joinpath(model_name).mkdir(parents=True, exist_ok=True)
-	print(download_path.joinpath(model_name))
 	for j in download_path.joinpath(model_name).iterdir():
-		if link.split('/')[-1] in list(Path(demucs_model_path).joinpath(model_name).iterdir()) and not update_cache:
+		if link.split('/')[-1] in j.name.split('/')[-1] and not update_cache:
 			print(f"{link.split('/')[-1]} already exists, skipping")
 			return {link.split('/')[-1]: j.joinpath(link.split('/')[-1]).resolve()}
 	content = requests.get(link, stream=True)
@@ -62,7 +59,7 @@ def get_demucs_model(model_name:str, link:str, download_path:Path, update_cache:
 					f.write(chunk)
 					pbar.update(len(chunk))
 	print(f"{link.split('/')[-1]} downloaded")
-	update_download_path("demucs", "model", model_name, link.split('/')[-1], download_path.joinpath(model_name).joinpath(link.split('/')[-1]))
+	update_download_path("demucs", "model", model_name, link.split('/')[-1], download_path)
 	return {link.split('/')[-1]: download_path.joinpath(model_name).resolve()}
 
 

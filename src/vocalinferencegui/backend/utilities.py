@@ -135,19 +135,22 @@ def get_cow_transfer_file(name, value, download_path, engine, type, auth:dict={}
 					[j.resolve() for j in download_path.joinpath(name).iterdir()]))
 
 
-def get_hugging_face_file(name, value, download_path, engine:str, type:str, patterns:list, update_cache=True, auth:dict={}, revision=None) -> dict[Any, Any]:
+def get_hugging_face_file(name, value, download_path, engine:str, type:str, patterns:list, update_cache=True, auth:dict={}) -> dict[Any, Any]:
 	download_path.mkdir(parents=True, exist_ok=True)
 	pattern = r"https:\/\/huggingface\.co\/([-\w.]+)\/([\w.-]+)\/?"
 	match = re.match(pattern, value)
 	repo_id = match.group(1) + "/" + match.group(2).strip("/")
-	local_cache_path = Path(huggingface_hub.snapshot_download(repo_id, allow_patterns=patterns,
-															  force_download=update_cache, token=auth.get("huggingface", None)))
-	move_file(local_cache_path, download_path.joinpath(name))
-	for k, l in zip([i.name for i in download_path.joinpath(name).iterdir()],
-					[j.resolve() for j in download_path.joinpath(name).iterdir()]):
-		update_download_path(engine, type, name, k, l)
-	return dict(zip([i.name for i in download_path.joinpath(name).iterdir()],
-					[j.resolve() for j in download_path.joinpath(name).iterdir()]))
+	print("downloading: ", repo_id)
+	huggingface_hub.snapshot_download(repo_id, allow_patterns=patterns, local_dir=download_path.joinpath(name), local_dir_use_symlinks=False,
+															  force_download=update_cache, token=auth.get("huggingface", None))
+	print("downloaded: ", repo_id)
+	key, value = [], []
+	for i in download_path.joinpath(name).iterdir():
+		for j in i.iterdir():
+			key.append(i.name + "/" + j.name)
+			value.append(j.resolve())
+			update_download_path(engine, type, name, i.name, j.resolve())
+	return dict(zip(key, value))
 
 
 

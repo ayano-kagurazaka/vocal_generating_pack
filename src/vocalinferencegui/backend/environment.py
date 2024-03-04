@@ -5,26 +5,26 @@ import classes
 
 config_path = Path("environment.json").resolve()
 if not config_path.exists():
-	print("config.json not found, creating...")
+	print("environment.json not found, creating...")
 	config_path.touch()
-	Path("environment.json").resolve().write_text('''
+	config_path.resolve().write_text('''
 	{
 		"model": {
-			"demucs": "../files/models/demucs",
-			"so-vits": "../files/models/so-vits"
+			"demucs": "../resources/files/models/demucs",
+			"so-vits": "../resources/files/models/so-vits"
 		},
 		"preset": {
-			"demucs": "../files/presets/demucs",
-			"so-vits": "../files/presets/so-vits"
+			"demucs": "../resources/files/presets/demucs",
+			"so-vits": "../resources/files/presets/so-vits"
 		},
 		"dataset": {
-			"demucs": "../files/datasets/demucs",
-			"so-vits": "../files/datasets/so-vits"
+			"demucs": "../resources/files/datasets/demucs",
+			"so-vits": "../resources/files/datasets/so-vits"
 		},
-		"output": "../files/output",
-		"sources": "../files/sources.json",
-		"sources_export": "../files/sources_export.json",
-		"key_path": "../files/keys",
+		"output": "../resources/files/output",
+		"sources": "../resources/files/sources.json",
+		"sources_export": "../resources/files/sources_export.json",
+		"key_path": "../resources/files/keys",
 		"keys": {}
 	}
 	''')
@@ -40,6 +40,8 @@ so_vits_dataset_path = Path(config["dataset"]["so-vits"]).resolve()
 output_path = Path(config["output"]).resolve()
 key_path = Path(config["key_path"]).resolve()
 
+
+
 # model path
 print("building file structures...")
 demucs_model_path.mkdir(parents=True, exist_ok=True)
@@ -49,6 +51,7 @@ so_vits_preset_path.mkdir(parents=True, exist_ok=True)
 so_vits_dataset_path.mkdir(parents=True, exist_ok=True)
 demucs_dataset_path.mkdir(parents=True, exist_ok=True)
 output_path.mkdir(parents=True, exist_ok=True)
+key_path.mkdir(parents=True, exist_ok=True)
 sources_path = Path(config["sources"]).resolve()
 Path("../files").mkdir(exist_ok=True, parents=True)
 

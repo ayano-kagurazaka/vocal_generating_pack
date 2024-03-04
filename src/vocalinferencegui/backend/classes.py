@@ -201,7 +201,6 @@ class AttributeDict(dict):
                     self.__dict__[key] = self._update_list(value)
         self.__dict__.update(entries, *args, **kwargs)
     def _update_list(self, entries, *args, **kwargs):
-        print(entries)
         for i in range(len(entries)):
             if isinstance(entries[i], list):
                 entries[i] = self._update_list(entries[i], *args, **kwargs)

@@ -12,7 +12,7 @@ from pathlib import Path
 import json
 
 from classes import DemucsGenerateParam
-from environment import output_path, config, so_vits_dataset_path
+from environment import output_path, config, so_vits_dataset_path, demucs_model_path
 from so_vits_svc_fork.inference.main import infer
 from so_vits_svc_fork.preprocessing.preprocess_flist_config import preprocess_config
 from pyannote.audio import Pipeline
@@ -104,7 +104,7 @@ def separate_vocal(
         split_num=5,
         clip_mode="clamp",
         jobs=os.cpu_count(),
-        repo=r"../files/models/demucs/hdemucs_mmi",
+        repo=r"../resources/files/models/demucs/hdemucs_mmi",
         extension="wav"
 ) -> dict[str, Path]:
     """
@@ -117,10 +117,10 @@ def separate_vocal(
     :param split_num: the number of segments to split the track, only works when split_mode is --segment
     :param clip_mode: the method to clip the track, rescale or clamp, default is rescale
     :param jobs: the number of jobs to use, default is use all the cpu logic core if in cpu mode
-    :param repo: the repo to download the model, default is https://dl.fbaipublicfiles.com/demucs/hybrid_transformer/
+    :param repo: the repo to download the model, default is the local model folder, comes from https://dl.fbaipublicfiles.com/demucs/hybrid_transformer/
     :param save_to_config: whether save the config of this function to a file
     :param name: the name of the config file
-    :param extension: extension of output file, default is mp3
+    :param extension: extension of output file, default is wav
     """
     lossy = ["mp3", "m4a", "ogg", "aac"]
     lossless = ["flac", "wav"]
@@ -153,17 +153,8 @@ def separate_vocal(
         args = args[:args.index(save_to_config)]
     except ValueError:
         pass
-    print(args)
     separate.main(args)
 
-    if not (extension in lossless and extension != "wav") or not (extension in lossy and extension != "mp3"):
-        print("converting file to " + extension + "...")
-        if extension in lossless:
-            cmd = "ffmpeg -v quiet -threads + " + str(os.cpu_count() // 2) + " -i" + str(Path(os.path.join(output_path, "vocals.wav")).resolve()) + " " + str(Path(os.path.join(output_path, "vocals." + extension.strip("."))).resolve())
-        else:
-            cmd = "ffmpeg -v quiet -threads " + str(os.cpu_count() // 2) + " -i " + str(Path(os.path.join(output_path, "vocals.mp3")).resolve()) + " " + str(Path(os.path.join(output_path, "vocals." + extension.strip("."))).resolve())
-        os.system(cmd)
-        print("done")
     output_vocal = Path(output_path).joinpath("hdemucs_mmi").joinpath(track_path.stem).joinpath("vocals." + extension.strip("."))
     output_no_vocal = Path(output_path).joinpath("hdemucs_mmi").joinpath(track_path.stem).joinpath("no_vocals." + extension.strip("."))
     return {"vocal": output_vocal, "instrumental": output_no_vocal}
@@ -342,7 +333,7 @@ def extract_speaker(
         sr:int = 44100,
         min_speaker: int = 1,
         max_speaker: int = 1,
-        huggingface_token: str = config["keys"]["huggingface_auth"]
+        huggingface_token: str = config["keys"].get("huggingface_token", "")
 ) -> Path:
     input_path = Path(input_path)
     path_out = Path(path_out)

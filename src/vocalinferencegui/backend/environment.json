@@ -1,0 +1,19 @@
+{
+	"model": {
+		"demucs": "../resources/files/models/demucs",
+		"so-vits": "../resources/files/models/so-vits"
+	},
+	"preset": {
+		"demucs": "../resources/files/presets/demucs",
+		"so-vits": "../resources/files/presets/so-vits"
+	},
+	"dataset": {
+		"demucs": "../resources/files/datasets/demucs",
+		"so-vits": "../resources/files/datasets/so-vits"
+	},
+	"output": "../resources/files/output",
+	"sources": "../resources/files/sources.json",
+	"sources_export": "../resources/files/sources_export.json",
+	"key_path": "../resources/files/keys",
+	"keys": {}
+}

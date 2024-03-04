@@ -42,7 +42,6 @@ AMD显卡用户请遗憾离场, 目前不支持AMD显卡
 - [空庭雨(已获得原作者授权)](https://music.163.com/song?id=2006730110)
 - [星空逃避行](https://tandess.itch.io/escape-demo)
 - [DAI☆TAN センセーション](https://www.tandess.com/en/music/free-material/material.html)
-- [永遠と唄](https://www.tandess.com/en/music/free-material/material.html)
-- [ディザイア](https://www.tandess.com/en/music/free-material/material.html)
+- [a wandering minstrel](https://www.tandess.com/en/music/free-material/material.html)
 
 
