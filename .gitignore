@@ -72,6 +72,7 @@ src/vocalinferencegui/resources/files/sources.json
 src/vocalinferencegui/resources/files/keys
 src/vocalinferencegui/backend/test
 src/vocalinferencegui/backend/environment.json
+.timetracker
 .DS_Store
 *.th
 *.pth
