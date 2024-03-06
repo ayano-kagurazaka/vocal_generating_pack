@@ -78,7 +78,7 @@ def update_env():
 	if not sources_path.exists():
 		with open(sources_path, "wb+") as s:
 			s.write(
-				get("https://raw.githubusercontent.com/ayano-kagurazaka/vocal_generating_pack/main/files/sources_export.json").content)
+				get("https://raw.githubusercontent.com/kagurazaka-ayano/vocal_generating_pack/main/src/vocalinferencegui/resources/files/sources_export.json").content)
 	sources = classes.AttributeDict(json.load(open(sources_path, "r")))
 	demucs_model_path = Path(config["model"]["demucs"]).resolve()
 	so_vits_model_path = Path(config["model"]["so-vits"]).resolve()
