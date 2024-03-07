@@ -2,8 +2,6 @@
 This is a gui for vocal inference workflow
 """
 import toga
-from toga.style import Pack
-from toga.style.pack import COLUMN, ROW
 
 
 class VocalInferenceGUI(toga.App):
@@ -15,7 +13,11 @@ class VocalInferenceGUI(toga.App):
         show the main window.
         """
         main_box = toga.Box()
-
+        self.cnt = 0
+        self.buttons = []
+        
+        
+        
         self.main_window = toga.MainWindow(title=self.formal_name)
         self.main_window.content = main_box
         self.main_window.show()
